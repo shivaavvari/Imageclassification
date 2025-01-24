@@ -1,0 +1,103 @@
+{% extends "rest_framework/base.html" %}
+
+{% load static %}   
+
+
+{% block bootstrap_theme %}
+    <link rel="stylesheet" href="{% static 'myapp/css/bootstrap.css' %}" type="text/css">
+    <style>
+          h1 {text-align: center;}
+          p {text-align: center;}
+          table {
+          width: 100%;
+          }
+
+    </style>       
+    
+
+{% endblock %}
+    
+    
+
+    
+
+{% block content %}
+    <body  style="background-color: aqua;">
+    
+    
+
+    <h1>Deeplearning for ImaeClassification</h1>
+    <script src="{% static 'myapp/js/jquery.js' %}"></script>
+    <script src="{% static 'myapp/js/popper.js' %}"></script>
+    <script src="{% static 'myapp/js/bootstrap.js' %}"></script>
+
+    <p>Check the list of Users  :<a href="{{users}}">{{users}}  </a></p>  
+    <p>Check the list of Model instances  :<a href="{{ dlmodels}}">{{ dlmodels }}   </a>  </p>
+        
+<br>
+
+    <form method="post" style="text-align: center;"enctype="multipart/form-data">
+        {% csrf_token %}
+        
+    <div style="text-align: center;">
+
+        <table style="background-color: green; border: brown; text-align: center;">  
+        <tr> <td> <p>API Route</td>              </p>      <td>  <p> :<a href='\'>         API route to serve Base Models</a> </p></td></tr>
+        <tr> <td><p>Model Input Form</td>            </p>   <td> <p> :<a href="\form">     Model Input form</a> </p></td></tr>
+        <tr> <td> <p>Predict on the Input Data</td>    </p> <td>  <p>:<a href="\predict">  Predict on Last Input Model Form data</a> </p></td></tr>
+        <tr> <td><p>Train the Model for Accuracy</td>   </p> <td> <p>:<a href="\train">    Train the Model </a> </p></td> </tr>
+        </table>
+    </div>
+        {{data}}           
+      <div style="border-left: 0cap;">
+       
+        {% for im in qs %}
+         {{ im.id }}  : <img src="{{  im.dlimage.thumbnail.32x32 }}" > <br/>
+        {% endfor %}
+
+      </div>
+   <table  style="height: 320px; width: 560px " >
+    <tr>
+      <th><label>Dlimage:</label></th>
+      <td>
+  
+        <div class="versatileimagefield"><div class="sizedimage-mod preview"><label class="versatileimagefield-label">Primary Point of Interest</label><div class="image-wrap outer"><div class="point-stage" id=""
+           data-image_preview_id=""><div class="ppoi-point" id=""></div></div></div></div><div class="sizedimage-mod new-upload"><label 
+  class="versatileimagefield-label">Change</label><input type="file" name="dlimage_0"
+   class="file-chooser" required id="id_dlimage_0"
+   /></div><input type="hidden" name="dlimage_1" class="ppoi-input" required id="id_dlimage_1"></div>
+  
+  
+      </td>
+    </tr>
+  
+    <tr>
+      <th><label for="id_owner">Owner:</label></th>
+      <td>
+  
+        <select name="owner" required id="id_owner">
+    <option value="" selected>---------</option>
+  
+    <option value="1">admin</option>
+  
+  </select>
+  
+  
+  
+  
+      </td>
+    </tr>
+   </tr>
+      <tr>
+        <th> </th>
+         <td><button type="submit" name="submit">Upload</button>
+         </td>
+      </tr>
+      </table>
+  </form> 
+   
+</body>
+{% endblock %}
+</html>
+
+
