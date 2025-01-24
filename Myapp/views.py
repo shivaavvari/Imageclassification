@@ -163,11 +163,11 @@ def get_mlmodel(request, format=None):
 
 @api_view(['GET', 'POST'])
 @permission_classes(())
-def predict(request,format=None):
+def predict(request,id,format=None):
   try:
     
-      if request.method=="POST":  
-        dlmodel = Dlmodel.objects.get(id=self.pk)
+      if request.method=="GET":  
+        dlmodel = Dlmodel.objects.get(id=id)
         serializer = DlmodelSerializer(dlmodel, context={'request': request})
         print(serializer.data)
         serializer_dict = serializer.data
@@ -183,7 +183,7 @@ def predict(request,format=None):
         image = image // 255
         image = np.expand_dims(image, axis=0)
         
-        model = model = keras.models.load_model("tensorflow_model.keras")
+        model = model = keras.models.load_model("simplecnn.keras")
         predict_res =model.predict(image)
         result =  class_names[tf.argmax(predict_res[0])]
         context = {
@@ -194,37 +194,8 @@ def predict(request,format=None):
                 'users': reverse('user-list', request=request, format=format),
                 'dlmodels': reverse('dlmodel-list', request=request, format=format),
             }              
-        return render(request, 'predicttrue.html', context=context)
-      else:
-        dlmodel = Dlmodel.objects.last()
-        serializer = DlmodelSerializer(dlmodel, context={'request': request})
-        print(serializer.data)
-        serializer_dict = serializer.data
-        image_url = serializer_dict['dlimage']['cifar_square_crop']
-        image_url = image_url.split('/')
-        file = image_url[-1]
-    
-        file_path = os.path.join(settings.BASE_DIR, "media", *image_url[-3:])
-        image = Image.open(file_path)
-        class_names = ['airplane', 'automobile', 'bird', 'cat', 'deer',
-               'dog', 'frog', 'horse', 'ship', 'truck']
-        image = np.array(image)
-        image = image // 255
-        image = np.expand_dims(image, axis=0)
-        
-        model = keras.models.load_model("tensorflow_model.keras")
-        predict_res =model.predict(image)
-        result =  class_names[tf.argmax(predict_res[0])]
-        context = {
-                
-                "qs":dlmodel ,
-                 "result" :result,
-               
-                'users': reverse('user-list', request=request, format=format),
-                'dlmodels': reverse('dlmodel-list', request=request, format=format),
-            }              
-        return render(request, 'predicttrue.html', context=context)
-       
+        return render(request, 'predict.html', context=context)
+   
             
   except Exception as e:
         return Response({"error": str(e)}, status=500)
@@ -264,7 +235,7 @@ def train(request,format=None):
         model.add(layers.Dense(10))
 
 
-        suummary = model.summary()
+        summary = model.summary()
         model.compile(optimizer='adam',
                     loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
                     metrics=['accuracy'])
@@ -272,12 +243,13 @@ def train(request,format=None):
         history = model.fit(train_images, train_labels, epochs=10,
                         validation_data=(test_images, test_labels))
 
-        keras.saving.save_model("simplecnn.keras")
-        keras.saving.load_model("simplecnn.keras")
+        
+        model.save("simplecnn.keras")
+        keras.models.load_model("simplecnn.keras")
         test_loss, test_acc = model.evaluate(test_images,  test_labels, verbose=2)
 
          
-        return(render(request,'train.html',{"data": Summary,
+        return(render(request,'train.html',{"data": summary,
                                                 'users': reverse('user-list', request=request, format=format),
                                                 'dlmodels': reverse('dlmodel-list', request=request, format=format),
                                                "accuracy" :test_acc    
